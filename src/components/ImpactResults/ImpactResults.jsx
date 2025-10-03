@@ -53,9 +53,9 @@ function ImpactResults({ results, neo }) {
             <div className="result-icon">🌊</div>
             <div className="result-content">
               <div className="result-label">Tsunami Wave</div>
-              <div className="result-value">{results.tsunami.maxWaveHeight.toFixed(2)} m</div>
+              <div className="result-value">{results.tsunami.waveHeight.toFixed(2)} m</div>
               <div className="result-subtitle">
-                Affected coastline: {results.tsunami.affectedCoastlineKm.toFixed(2)} km
+                Affected coastline: {results.tsunami.affectedCoastlineKm} km
               </div>
             </div>
           </div>
