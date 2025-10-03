@@ -4,7 +4,7 @@ import { useState } from "react"
 import ImpactCalculator from "../../Simulation/ImpactCalculator"
 import "./MitigationPanel.css"
 
-function MitigationPanel({ neo, impactScenario, onMitigate, standalone = false }) {
+function MitigationPanel({ neo, impactParams, impactScenario, onMitigate, standalone = false }) {
   const [strategy, setStrategy] = useState("kinetic")
   const [velocityReduction, setVelocityReduction] = useState(5)
   const [deflectionAngle, setDeflectionAngle] = useState(0.1)
@@ -16,8 +16,48 @@ function MitigationPanel({ neo, impactScenario, onMitigate, standalone = false }
 
     setTimeout(() => {
       try {
+        // Determine which prop was passed and build complete impact scenario
+        let fullScenario
+        
+        if (impactScenario) {
+          // If full impactScenario is passed (from SimulationWizard), use it directly
+          fullScenario = impactScenario
+        } else if (impactParams) {
+          // If impactParams is passed (from MitigationStrategies), build scenario
+          fullScenario = {
+            asteroidId: neo.id,
+            asteroidName: neo.name,
+            diameter: neo.estimated_diameter?.meters?.estimated_diameter_max || 
+                     neo.estimated_diameter_max?.meters || 
+                     100, // fallback
+            mass: neo.estimated_diameter?.meters?.estimated_diameter_max 
+                  ? (4/3) * Math.PI * Math.pow((neo.estimated_diameter.meters.estimated_diameter_max / 2), 3) * 2600
+                  : 1.4e9, // fallback mass calculation
+            velocity: impactParams.impactVelocity || 
+                     parseFloat(neo.close_approach_data?.[0]?.relative_velocity?.kilometers_per_second) || 
+                     20,
+            angle: impactParams.impactAngle || 45,
+            location: { latitude: 0, longitude: 0, elevation: 0 },
+            surfaceType: impactParams.targetType?.toUpperCase() || 'LAND',
+          }
+        } else {
+          // Fallback: build from neo data only
+          fullScenario = {
+            asteroidId: neo.id,
+            asteroidName: neo.name,
+            diameter: neo.estimated_diameter?.meters?.estimated_diameter_max || 100,
+            mass: neo.estimated_diameter?.meters?.estimated_diameter_max 
+                  ? (4/3) * Math.PI * Math.pow((neo.estimated_diameter.meters.estimated_diameter_max / 2), 3) * 2600
+                  : 1.4e9,
+            velocity: parseFloat(neo.close_approach_data?.[0]?.relative_velocity?.kilometers_per_second) || 20,
+            angle: 45,
+            location: { latitude: 0, longitude: 0, elevation: 0 },
+            surfaceType: 'LAND',
+          }
+        }
+
         const mitigationResult = ImpactCalculator.calculateMitigation(
-          impactScenario,
+          fullScenario,
           velocityReduction,
           deflectionAngle,
         )

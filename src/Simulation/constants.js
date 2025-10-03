@@ -80,7 +80,7 @@ export const IMPACT_CONSTANTS = {
 export const API_CONFIG = {
 
   // the Base URL and the API key are temporarly shown
-  // Reminder: put the API key in an env before submit
+  // Reminder: put the API key in an env
   BASE_URL: 'https://api.nasa.gov/neo/rest/v1',
   API_KEY: 'Aogi42tvKa7VUpdF477lNIYUFS97v2fYjdnDr0bH',
   
