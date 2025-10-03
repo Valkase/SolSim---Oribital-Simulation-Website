@@ -1,0 +1,297 @@
+.orbit-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.orbit-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.orbit-header {
+  text-align: center;
+}
+
+.orbit-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.orbit-subtitle {
+  color: #a0aec0;
+  font-size: 0.875rem;
+}
+
+.orbit-canvas-container {
+  width: 100%;
+  height: 500px;
+  background: rgba(0, 5, 16, 0.8);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.orbit-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: rgba(10, 14, 39, 0.6);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #a0aec0;
+  margin-bottom: 0.5rem;
+}
+
+.info-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #00ffff;
+  font-family: "Courier New", monospace;
+}
+
+.close-approach-info {
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.approach-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffa500;
+  margin-bottom: 1rem;
+}
+
+.approach-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.approach-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.approach-label {
+  color: #a0aec0;
+  font-weight: 600;
+}
+
+.approach-value {
+  color: #ffffff;
+  font-family: "Courier New", monospace;
+}
+
+.orbit-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(10, 14, 39, 0.4);
+  border-radius: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #a0aec0;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+}
+
+.continue-button {
+  background: #00ffff;
+  color: #0a0e27;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  align-self: center;
+}
+
+.continue-button:hover {
+  background: #00ccff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+}
+
+/* Added styles for interactive controls panel */
+.orbit-controls-panel {
+  background: rgba(10, 14, 39, 0.8);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.control-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #00ffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.control-btn {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  color: #00ffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+  transform: translateY(-1px);
+}
+
+.control-btn.active {
+  background: #00ffff;
+  color: #0a0e27;
+  border-color: #00ffff;
+}
+
+.speed-display {
+  color: #00ffff;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  padding: 0 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ffff, #00ccff);
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.control-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #a0aec0;
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #00ffff;
+}
+
+.toggle-label:hover {
+  color: #00ffff;
+}
+
+.measurement-display {
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.measurement-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffa500;
+  font-family: "Courier New", monospace;
+  margin-top: 0.5rem;
+}
+
+.orbit-label {
+  z-index: 100;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .orbit-canvas-container {
+    height: 300px;
+  }
+
+  .orbit-legend {
+    gap: 1rem;
+  }
+
+  .orbit-controls-panel {
+    padding: 1rem;
+  }
+
+  .control-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .control-btn {
+    width: 100%;
+  }
+}

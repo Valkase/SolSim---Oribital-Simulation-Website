@@ -1,0 +1,174 @@
+.mitigation-strategies {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.mitigation-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.mitigation-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.mitigation-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #ffffff 0%, #00ffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mitigation-subtitle {
+  font-size: 1.125rem;
+  color: #a0aec0;
+}
+
+.warning-banner {
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #ffa500;
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+}
+
+.mitigation-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+.mitigation-selector {
+  background: rgba(26, 31, 58, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  height: fit-content;
+}
+
+.section-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
+
+.mitigation-panel-container {
+  background: rgba(26, 31, 58, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.mitigation-history {
+  grid-column: 1 / -1;
+  background: rgba(26, 31, 58, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.clear-button {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.clear-button:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff6b6b;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.history-item {
+  background: rgba(10, 14, 39, 0.5);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.history-neo-name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.history-timestamp {
+  font-size: 0.875rem;
+  color: #a0aec0;
+}
+
+.history-item-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #a0aec0;
+  margin-bottom: 0.5rem;
+}
+
+.history-success {
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.history-success.success {
+  background: rgba(0, 255, 0, 0.1);
+  color: #00ff00;
+}
+
+.history-success.failure {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff6b6b;
+}
+
+.history-item-stats {
+  font-size: 0.875rem;
+  color: #00ffff;
+  font-family: "Courier New", monospace;
+}
+
+@media (max-width: 1024px) {
+  .mitigation-layout {
+    grid-template-columns: 1fr;
+  }
+}
