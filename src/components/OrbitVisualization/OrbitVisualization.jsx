@@ -286,31 +286,6 @@ function OrbitVisualization({ neo, onContinue }) {
     scene.add(trail)
     particleTrailRef.current = { mesh: trail, positions: [] }
 
-    // Labels
-    const createLabel = (text, position) => {
-      const div = document.createElement("div")
-      div.className = "orbit-label"
-      div.textContent = text
-      div.style.position = "absolute"
-      div.style.color = "#00ffff"
-      div.style.fontSize = "12px"
-      div.style.fontWeight = "bold"
-      div.style.padding = "4px 8px"
-      div.style.background = "rgba(0, 0, 0, 0.7)"
-      div.style.borderRadius = "4px"
-      div.style.border = "1px solid #00ffff"
-      div.style.pointerEvents = "none"
-      div.style.userSelect = "none"
-      containerRef.current.appendChild(div)
-      return { element: div, position: position }
-    }
-
-    labelsRef.current = [
-      createLabel("Sun", sun.position),
-      createLabel("Earth", earth.position),
-      createLabel(neo.name, asteroid.position),
-    ]
-
     let animationId
     let progress = 0
     const trailPositions = []
