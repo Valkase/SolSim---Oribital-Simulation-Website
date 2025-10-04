@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import OrbitCalculator from "../../Simulation/OrbitCalculator"
+import { CONSTANTS } from "../../Simulation/constants"
 import "./OrbitVisualization.css"
 
 function OrbitVisualization({ neo, onContinue }) {
@@ -14,6 +15,7 @@ function OrbitVisualization({ neo, onContinue }) {
   const rendererRef = useRef(null)
   const asteroidRef = useRef(null)
   const earthRef = useRef(null)
+  const earthOrbitLineRef = useRef(null)
   const sunRef = useRef(null)
   const orbitLinesRef = useRef({ helio: null, geo: null })
   const particleTrailRef = useRef(null)
@@ -22,7 +24,7 @@ function OrbitVisualization({ neo, onContinue }) {
   const [orbitData, setOrbitData] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const [cameraMode, setCameraMode] = useState("heliocentric") // heliocentric, geocentric, asteroid, free
+  const [cameraMode, setCameraMode] = useState("heliocentric")
   const [isPlaying, setIsPlaying] = useState(true)
   const [timeSpeed, setTimeSpeed] = useState(1)
   const [showOrbits, setShowOrbits] = useState(true)
@@ -32,6 +34,9 @@ function OrbitVisualization({ neo, onContinue }) {
   const [measurementMode, setMeasurementMode] = useState(false)
   const [measurementPoints, setMeasurementPoints] = useState([])
   const [animationProgress, setAnimationProgress] = useState(0)
+
+  // Consistent scale: 1 unit = 1 million km
+  const SCALE = 1e6 // km per unit
 
   useEffect(() => {
     if (!neo) return
@@ -49,6 +54,7 @@ function OrbitVisualization({ neo, onContinue }) {
         heliocentric: heliocentricOrbit,
         geocentric: geocentricOrbit,
         closeApproach: closeApproach,
+        startTime: startTime,
       })
     } catch (error) {
       console.error("Error calculating orbit:", error)
@@ -63,7 +69,7 @@ function OrbitVisualization({ neo, onContinue }) {
     const scene = new THREE.Scene()
     sceneRef.current = scene
 
-    // Create starfield background
+    // Starfield background
     const starGeometry = new THREE.BufferGeometry()
     const starVertices = []
     for (let i = 0; i < 10000; i++) {
@@ -110,6 +116,7 @@ function OrbitVisualization({ neo, onContinue }) {
     sunLight.shadow.mapSize.height = 2048
     scene.add(sunLight)
 
+    // Sun at origin
     const sunGeometry = new THREE.SphereGeometry(5, 64, 64)
     const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xfdb813 })
     const sun = new THREE.Mesh(sunGeometry, sunMaterial)
@@ -117,7 +124,7 @@ function OrbitVisualization({ neo, onContinue }) {
     scene.add(sun)
     sunRef.current = sun
 
-    // Add sun glow
+    // Sun glow
     const glowGeometry = new THREE.SphereGeometry(7, 64, 64)
     const glowMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -145,6 +152,7 @@ function OrbitVisualization({ neo, onContinue }) {
     const sunGlow = new THREE.Mesh(glowGeometry, glowMaterial)
     sun.add(sunGlow)
 
+    // Earth - will be animated, not fixed
     const earthGeometry = new THREE.SphereGeometry(2, 64, 64)
     const earthMaterial = new THREE.MeshPhongMaterial({
       color: 0x2233ff,
@@ -153,14 +161,13 @@ function OrbitVisualization({ neo, onContinue }) {
       specular: 0x333333,
     })
     const earth = new THREE.Mesh(earthGeometry, earthMaterial)
-    earth.position.set(150, 0, 0)
     earth.castShadow = true
     earth.receiveShadow = true
     earth.userData.label = "Earth"
     scene.add(earth)
     earthRef.current = earth
 
-    // Add Earth atmosphere glow
+    // Earth atmosphere
     const atmosphereGeometry = new THREE.SphereGeometry(2.3, 64, 64)
     const atmosphereMaterial = new THREE.ShaderMaterial({
       uniforms: {
@@ -188,15 +195,40 @@ function OrbitVisualization({ neo, onContinue }) {
     const earthAtmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
     earth.add(earthAtmosphere)
 
+    // Draw Earth's orbit path (circular approximation at 1 AU)
+    const earthOrbitPoints = []
+    const numEarthOrbitPoints = 200
+    const earthOrbitRadius = CONSTANTS.EARTH_SEMI_MAJOR_AXIS_AU * CONSTANTS.AU_TO_KM / SCALE
+    for (let i = 0; i <= numEarthOrbitPoints; i++) {
+      const angle = (i / numEarthOrbitPoints) * Math.PI * 2
+      earthOrbitPoints.push(
+        new THREE.Vector3(
+          earthOrbitRadius * Math.cos(angle),
+          0,
+          earthOrbitRadius * Math.sin(angle)
+        )
+      )
+    }
+    const earthOrbitGeometry = new THREE.BufferGeometry().setFromPoints(earthOrbitPoints)
+    const earthOrbitMaterial = new THREE.LineBasicMaterial({
+      color: 0x4488ff,
+      transparent: true,
+      opacity: 0.3,
+    })
+    const earthOrbitLine = new THREE.Line(earthOrbitGeometry, earthOrbitMaterial)
+    scene.add(earthOrbitLine)
+    earthOrbitLineRef.current = earthOrbitLine
+
+    // Asteroid heliocentric orbit
     if (orbitData.heliocentric && orbitData.heliocentric.length > 0) {
       const helioPoints = orbitData.heliocentric.map(
-        (point) => new THREE.Vector3(point.x / 1e6, point.y / 1e6, point.z / 1e6),
+        (point) => new THREE.Vector3(point.x / SCALE, point.y / SCALE, point.z / SCALE),
       )
       const helioGeometry = new THREE.BufferGeometry().setFromPoints(helioPoints)
       const helioMaterial = new THREE.LineBasicMaterial({
-        color: 0x00ffff,
+        color: 0xff6600,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.7,
         linewidth: 2,
       })
       const helioLine = new THREE.Line(helioGeometry, helioMaterial)
@@ -204,27 +236,21 @@ function OrbitVisualization({ neo, onContinue }) {
       orbitLinesRef.current.helio = helioLine
     }
 
-    if (orbitData.geocentric && orbitData.geocentric.length > 0) {
-      const geoPoints = orbitData.geocentric.map(
-        (point) =>
-          new THREE.Vector3(
-            earth.position.x + point.x / 1e5,
-            earth.position.y + point.y / 1e5,
-            earth.position.z + point.z / 1e5,
-          ),
-      )
-      const geoGeometry = new THREE.BufferGeometry().setFromPoints(geoPoints)
-      const geoMaterial = new THREE.LineBasicMaterial({
-        color: 0xff6600,
-        transparent: true,
-        opacity: 0.6,
-        linewidth: 2,
-      })
-      const geoLine = new THREE.Line(geoGeometry, geoMaterial)
-      scene.add(geoLine)
-      orbitLinesRef.current.geo = geoLine
-    }
+    // Geocentric orbit (relative to Earth) - will be updated dynamically
+    const geoGeometry = new THREE.BufferGeometry()
+    const geoPoints = new Float32Array(orbitData.geocentric.length * 3)
+    geoGeometry.setAttribute("position", new THREE.BufferAttribute(geoPoints, 3))
+    const geoMaterial = new THREE.LineBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.6,
+      linewidth: 2,
+    })
+    const geoLine = new THREE.Line(geoGeometry, geoMaterial)
+    scene.add(geoLine)
+    orbitLinesRef.current.geo = geoLine
 
+    // Asteroid
     const asteroidGeometry = new THREE.SphereGeometry(0.8, 32, 32)
     const asteroidMaterial = new THREE.MeshStandardMaterial({
       color: 0x8b7355,
@@ -240,13 +266,14 @@ function OrbitVisualization({ neo, onContinue }) {
 
     if (orbitData.heliocentric && orbitData.heliocentric.length > 0) {
       const asteroidPos = orbitData.heliocentric[0]
-      asteroid.position.set(asteroidPos.x / 1e6, asteroidPos.y / 1e6, asteroidPos.z / 1e6)
+      asteroid.position.set(asteroidPos.x / SCALE, asteroidPos.y / SCALE, asteroidPos.z / SCALE)
     }
     scene.add(asteroid)
     asteroidRef.current = asteroid
 
+    // Particle trail
     const trailGeometry = new THREE.BufferGeometry()
-    const trailPositionsArray = new Float32Array(300 * 3) // 100 trail points
+    const trailPositionsArray = new Float32Array(100 * 3)
     trailGeometry.setAttribute("position", new THREE.BufferAttribute(trailPositionsArray, 3))
     const trailMaterial = new THREE.PointsMaterial({
       color: 0xff9900,
@@ -259,6 +286,7 @@ function OrbitVisualization({ neo, onContinue }) {
     scene.add(trail)
     particleTrailRef.current = { mesh: trail, positions: [] }
 
+    // Labels
     const createLabel = (text, position) => {
       const div = document.createElement("div")
       div.className = "orbit-label"
@@ -295,10 +323,37 @@ function OrbitVisualization({ neo, onContinue }) {
         if (progress >= 1) progress = 0
 
         const index = Math.floor(progress * orbitData.heliocentric.length)
-        const asteroidPos = orbitData.heliocentric[index]
+        const currentTime = orbitData.startTime + (progress * 365 * CONSTANTS.SECONDS_PER_DAY * 1000)
+        
+        // Update Earth position based on actual orbital calculation
+        const earthPos = OrbitCalculator.calculateEarthPosition(currentTime)
+        earthRef.current.position.set(
+          earthPos.x * CONSTANTS.AU_TO_KM / SCALE,
+          earthPos.y * CONSTANTS.AU_TO_KM / SCALE,
+          earthPos.z * CONSTANTS.AU_TO_KM / SCALE
+        )
 
+        // Update asteroid position
+        const asteroidPos = orbitData.heliocentric[index]
         if (asteroidRef.current) {
-          asteroidRef.current.position.set(asteroidPos.x / 1e6, asteroidPos.y / 1e6, asteroidPos.z / 1e6)
+          asteroidRef.current.position.set(
+            asteroidPos.x / SCALE,
+            asteroidPos.y / SCALE,
+            asteroidPos.z / SCALE
+          )
+
+          // Update geocentric orbit line to follow Earth
+          if (orbitLinesRef.current.geo && orbitData.geocentric) {
+            const geoPositions = orbitLinesRef.current.geo.geometry.attributes.position.array
+            for (let i = 0; i < orbitData.geocentric.length; i++) {
+              const geoPoint = orbitData.geocentric[i]
+              // Geocentric coordinates are relative to Earth, so add Earth's position
+              geoPositions[i * 3] = earthRef.current.position.x + geoPoint.x / SCALE
+              geoPositions[i * 3 + 1] = earthRef.current.position.y + geoPoint.y / SCALE
+              geoPositions[i * 3 + 2] = earthRef.current.position.z + geoPoint.z / SCALE
+            }
+            orbitLinesRef.current.geo.geometry.attributes.position.needsUpdate = true
+          }
 
           // Update particle trail
           if (showTrails) {
@@ -310,6 +365,11 @@ function OrbitVisualization({ neo, onContinue }) {
               positions[i * 3] = trailPositions[i].x
               positions[i * 3 + 1] = trailPositions[i].y
               positions[i * 3 + 2] = trailPositions[i].z
+            }
+            for (let i = trailPositions.length; i < 100; i++) {
+              positions[i * 3] = 0
+              positions[i * 3 + 1] = 0
+              positions[i * 3 + 2] = 0
             }
             particleTrailRef.current.mesh.geometry.attributes.position.needsUpdate = true
           }
@@ -371,6 +431,9 @@ function OrbitVisualization({ neo, onContinue }) {
       if (orbitLinesRef.current.geo) {
         orbitLinesRef.current.geo.visible = showOrbits
       }
+      if (earthOrbitLineRef.current) {
+        earthOrbitLineRef.current.visible = showOrbits
+      }
 
       // Toggle trail visibility
       if (particleTrailRef.current) {
@@ -429,7 +492,7 @@ function OrbitVisualization({ neo, onContinue }) {
     <div className="orbit-visualization">
       <div className="orbit-header">
         <h2 className="orbit-title">Orbital Trajectory: {neo.name}</h2>
-        <p className="orbit-subtitle">Interactive 3D visualization with multiple viewing modes</p>
+        <p className="orbit-subtitle">Interactive 3D visualization with physically accurate orbits</p>
       </div>
 
       <div className="orbit-controls-panel">
@@ -519,7 +582,7 @@ function OrbitVisualization({ neo, onContinue }) {
           <div className="measurement-display">
             <h3 className="control-title">Distance Measurement</h3>
             <p className="measurement-value">
-              {(calculateDistance(measurementPoints[0], measurementPoints[1]) * 1e6).toFixed(0)} km
+              {(calculateDistance(measurementPoints[0], measurementPoints[1]) * SCALE).toFixed(0)} km
             </p>
           </div>
         )}
@@ -583,7 +646,7 @@ function OrbitVisualization({ neo, onContinue }) {
 
       <div className="orbit-legend">
         <div className="legend-item">
-          <div className="legend-color" style={{ background: "#ffff00" }}></div>
+          <div className="legend-color" style={{ background: "#fdb813" }}></div>
           <span>Sun</span>
         </div>
         <div className="legend-item">
@@ -591,15 +654,19 @@ function OrbitVisualization({ neo, onContinue }) {
           <span>Earth</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: "#00ffff" }}></div>
-          <span>Heliocentric Orbit</span>
+          <div className="legend-color" style={{ background: "#4488ff" }}></div>
+          <span>Earth's Orbit</span>
         </div>
         <div className="legend-item">
           <div className="legend-color" style={{ background: "#ff6600" }}></div>
-          <span>Geocentric Orbit</span>
+          <span>Asteroid Heliocentric Orbit</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: "#aaaaaa" }}></div>
+          <div className="legend-color" style={{ background: "#00ffff" }}></div>
+          <span>Asteroid Geocentric Path</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-color" style={{ background: "#8b7355" }}></div>
           <span>Asteroid</span>
         </div>
       </div>
